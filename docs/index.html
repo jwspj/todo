@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TODO アプリ</title>
+<style>
+:root {
+  --bg: #0f0f13;
+  --surface: #1a1a24;
+  --surface2: #22222f;
+  --border: #2e2e40;
+  --accent: #7c6af7;
+  --accent-hover: #9585ff;
+  --accent-dim: rgba(124,106,247,0.15);
+  --text: #e8e8f0;
+  --text-muted: #7a7a9a;
+  --high: #f87171;
+  --medium: #fbbf24;
+  --low: #34d399;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.5}
+.app{max-width:760px;margin:0 auto;padding:48px 20px 80px}
+.header{text-align:center;margin-bottom:40px}
+.header h1{font-size:2.4rem;font-weight:800;background:linear-gradient(135deg,var(--accent),#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.5px}
+.header p{color:var(--text-muted);margin-top:6px;font-size:.95rem}
+.stats{display:flex;gap:12px;margin-bottom:24px;flex-wrap:wrap}
+.stat-card{flex:1;min-width:100px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px 18px;text-align:center}
+.stat-card .num{font-size:1.8rem;font-weight:700;color:var(--accent)}
+.stat-card .label{font-size:.75rem;color:var(--text-muted);margin-top:2px}
+.form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;box-shadow:var(--shadow)}
+.form-title{font-size:.85rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
+.form-row{display:flex;gap:12px;margin-bottom:12px}
+.form-row:last-child{margin-bottom:0}
+.form-group{flex:1;display:flex;flex-direction:column;gap:6px}
+.form-group label{font-size:.8rem;color:var(--text-muted)}
+input[type=text],input[type=date],textarea,select{background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:var(--radius-sm);padding:10px 14px;font-size:.95rem;font-family:inherit;width:100%;transition:border-color .2s;outline:none}
+input[type=text]:focus,input[type=date]:focus,textarea:focus,select:focus{border-color:var(--accent)}
+textarea{resize:vertical;min-height:70px}
+select option{background:var(--surface2)}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 20px;border-radius:var(--radius-sm);border:none;cursor:pointer;font-size:.9rem;font-weight:600;font-family:inherit;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px)}
+.btn-ghost{background:transparent;color:var(--text-muted);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--surface2);color:var(--text)}
+.filters{display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.search-box{flex:1;min-width:180px;position:relative}
+.search-box input{padding-left:36px}
+.search-box .icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none}
+.filter-group{display:flex;gap:6px}
+.chip{padding:7px 14px;border-radius:99px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;font-size:.82rem;font-weight:500;transition:all .15s}
+.chip:hover{border-color:var(--accent);color:var(--text)}
+.chip.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.list-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.list-header span{font-size:.85rem;color:var(--text-muted)}
+.todo-list{display:flex;flex-direction:column;gap:8px}
+.todo-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;display:flex;align-items:flex-start;gap:14px;transition:all .2s;position:relative;overflow:hidden}
+.todo-item::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px 0 0 3px}
+.todo-item.priority-high::before{background:var(--high)}
+.todo-item.priority-medium::before{background:var(--medium)}
+.todo-item.priority-low::before{background:var(--low)}
+.todo-item:hover{border-color:var(--accent);box-shadow:0 2px 16px rgba(124,106,247,.1)}
+.todo-item.completed{opacity:.55}
+.todo-item.completed .todo-title{text-decoration:line-through;color:var(--text-muted)}
+.checkbox-wrap{flex-shrink:0;margin-top:2px}
+.checkbox-wrap input[type=checkbox]{display:none}
+.checkbox-wrap label{width:22px;height:22px;border:2px solid var(--border);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;font-size:.75rem}
+.checkbox-wrap input:checked+label{background:var(--accent);border-color:var(--accent);color:#fff}
+.checkbox-wrap label:hover{border-color:var(--accent)}
+.todo-body{flex:1;min-width:0}
+.todo-header-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.todo-title{font-weight:600;font-size:.95rem}
+.badge{font-size:.7rem;font-weight:600;padding:2px 8px;border-radius:99px;text-transform:uppercase;letter-spacing:.04em}
+.badge-high{background:rgba(248,113,113,.15);color:var(--high)}
+.badge-medium{background:rgba(251,191,36,.15);color:var(--medium)}
+.badge-low{background:rgba(52,211,153,.15);color:var(--low)}
+.todo-desc{font-size:.85rem;color:var(--text-muted);margin-bottom:6px;white-space:pre-wrap}
+.todo-meta{display:flex;gap:14px;font-size:.77rem;color:var(--text-muted)}
+.todo-meta span{display:flex;align-items:center;gap:4px}
+.due-overdue{color:var(--high)!important}
+.due-soon{color:var(--medium)!important}
+.todo-actions{display:flex;gap:4px;flex-shrink:0;opacity:0;transition:opacity .15s}
+.todo-item:hover .todo-actions{opacity:1}
+.icon-btn{width:32px;height:32px;border:none;border-radius:var(--radius-sm);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .15s}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.icon-btn.delete:hover{color:var(--high);background:rgba(248,113,113,.1)}
+.icon-btn.edit:hover{color:var(--accent);background:var(--accent-dim)}
+.edit-form{display:none;flex-direction:column;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
+.edit-form.visible{display:flex}
+.edit-row{display:flex;gap:8px}
+.edit-actions{display:flex;gap:6px;justify-content:flex-end}
+.empty{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty .icon{font-size:3rem;margin-bottom:12px;opacity:.4}
+.empty p{font-size:.95rem}
+.bottom-actions{display:flex;justify-content:flex-end;margin-top:16px}
+.toast-container{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:9999}
+.toast{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 18px;font-size:.88rem;box-shadow:var(--shadow);animation:slideIn .2s ease;max-width:280px}
+.toast.success{border-color:var(--low);color:var(--low)}
+.toast.error{border-color:var(--high);color:var(--high)}
+@keyframes slideIn{from{transform:translateX(30px);opacity:0}to{transform:translateX(0);opacity:1}}
+@media(max-width:520px){.form-row{flex-direction:column}.filters{flex-direction:column}.filter-group{flex-wrap:wrap}.header h1{font-size:1.8rem}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="header">
+    <h1>✅ TODO アプリ</h1>
+    <p>タスクを整理して、毎日を効率よく</p>
+  </header>
+
+  <div class="stats">
+    <div class="stat-card"><div class="num" id="stat-total">0</div><div class="label">合計</div></div>
+    <div class="stat-card"><div class="num" id="stat-active">0</div><div class="label">未完了</div></div>
+    <div class="stat-card"><div class="num" id="stat-done">0</div><div class="label">完了</div></div>
+  </div>
+
+  <div class="form-card">
+    <div class="form-title">新しいタスク</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="new-title">タイトル <span style="color:var(--high)">*</span></label>
+        <input type="text" id="new-title" placeholder="何をしますか？">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="new-desc">詳細（任意）</label>
+        <textarea id="new-desc" placeholder="メモや詳細を入力..."></textarea>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="new-priority">優先度</label>
+        <select id="new-priority">
+          <option value="high">🔴 高</option>
+          <option value="medium" selected>🟡 中</option>
+          <option value="low">🟢 低</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="new-due">期限日（任意）</label>
+        <input type="date" id="new-due">
+      </div>
+      <div class="form-group" style="justify-content:flex-end;flex:0;min-width:100px">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" id="btn-add">+ 追加</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="filters">
+    <div class="search-box">
+      <span class="icon">🔍</span>
+      <input type="text" id="search" placeholder="検索...">
+    </div>
+    <div class="filter-group">
+      <button class="chip chip-status active" data-v="all">すべて</button>
+      <button class="chip chip-status" data-v="active">未完了</button>
+      <button class="chip chip-status" data-v="completed">完了</button>
+    </div>
+    <div class="filter-group">
+      <button class="chip chip-priority active" data-v="all">全優先度</button>
+      <button class="chip chip-priority" data-v="high">高</button>
+      <button class="chip chip-priority" data-v="medium">中</button>
+      <button class="chip chip-priority" data-v="low">低</button>
+    </div>
+  </div>
+
+  <div class="list-header">
+    <span id="todo-count">0 件</span>
+  </div>
+  <div id="todo-list" class="todo-list"></div>
+
+  <div class="bottom-actions">
+    <button class="btn btn-ghost" id="btn-clear-completed">完了済みを削除</button>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+const STORAGE_KEY = "gh-pages-todos";
+let todos = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+let state = { status: "all", priority: "all", search: "" };
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
+}
+
+function nextId() {
+  return todos.length ? Math.max(...todos.map(t => t.id)) + 1 : 1;
+}
+
+function getFiltered() {
+  return todos.filter(t => {
+    if (state.status === "active" && t.completed) return false;
+    if (state.status === "completed" && !t.completed) return false;
+    if (state.priority !== "all" && t.priority !== state.priority) return false;
+    if (state.search) {
+      const q = state.search.toLowerCase();
+      if (!t.title.toLowerCase().includes(q) && !t.description.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    if (a.completed !== b.completed) return a.completed ? 1 : -1;
+    const po = {high:1,medium:2,low:3};
+    if (po[a.priority] !== po[b.priority]) return po[a.priority] - po[b.priority];
+    return b.id - a.id;
+  });
+}
+
+function render() {
+  const filtered = getFiltered();
+  document.getElementById("stat-total").textContent = todos.length;
+  document.getElementById("stat-active").textContent = todos.filter(t => !t.completed).length;
+  document.getElementById("stat-done").textContent = todos.filter(t => t.completed).length;
+  document.getElementById("todo-count").textContent = filtered.length + " 件";
+
+  const list = document.getElementById("todo-list");
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty"><div class="icon">📋</div><p>タスクがありません</p></div>';
+    return;
+  }
+  list.innerHTML = filtered.map(t => todoHTML(t)).join("");
+  attachEvents();
+}
+
+function priorityLabel(p) { return {high:"高",medium:"中",low:"低"}[p]; }
+
+function formatDate(s) {
+  if (!s) return "";
+  const d = new Date(s + "T00:00:00");
+  return `${d.getMonth()+1}/${d.getDate()}`;
+}
+
+function dueCls(due, completed) {
+  if (!due || completed) return "";
+  const today = new Date(); today.setHours(0,0,0,0);
+  const d = new Date(due + "T00:00:00");
+  if (d < today) return "due-overdue";
+  if ((d - today) / 86400000 <= 2) return "due-soon";
+  return "";
+}
+
+function todoHTML(t) {
+  const cls = dueCls(t.due_date, t.completed);
+  const dueLabel = t.due_date
+    ? `<span class="${cls}">📅 ${formatDate(t.due_date)}${cls==="due-overdue"?" 期限切れ":""}</span>`
+    : "";
+  const created = new Date(t.created_at).toLocaleDateString("ja-JP");
+  return `
+<div class="todo-item priority-${t.priority}${t.completed?" completed":""}" data-id="${t.id}">
+  <div class="checkbox-wrap">
+    <input type="checkbox" id="cb-${t.id}"${t.completed?" checked":""}>
+    <label for="cb-${t.id}">✓</label>
+  </div>
+  <div class="todo-body">
+    <div class="todo-header-row">
+      <span class="todo-title">${esc(t.title)}</span>
+      <span class="badge badge-${t.priority}">${priorityLabel(t.priority)}</span>
+    </div>
+    ${t.description?`<div class="todo-desc">${esc(t.description)}</div>`:""}
+    <div class="todo-meta">${dueLabel}<span>🕐 ${created}</span></div>
+    <div class="edit-form" id="edit-${t.id}">
+      <input type="text" class="edit-title" value="${esc(t.title)}" placeholder="タイトル">
+      <textarea class="edit-desc" placeholder="詳細">${esc(t.description)}</textarea>
+      <div class="edit-row">
+        <select class="edit-priority">
+          <option value="high"${t.priority==="high"?" selected":""}>🔴 高</option>
+          <option value="medium"${t.priority==="medium"?" selected":""}>🟡 中</option>
+          <option value="low"${t.priority==="low"?" selected":""}>🟢 低</option>
+        </select>
+        <input type="date" class="edit-due" value="${t.due_date||""}">
+      </div>
+      <div class="edit-actions">
+        <button class="btn btn-ghost btn-cancel" data-id="${t.id}">キャンセル</button>
+        <button class="btn btn-primary btn-save" data-id="${t.id}">保存</button>
+      </div>
+    </div>
+  </div>
+  <div class="todo-actions">
+    <button class="icon-btn edit btn-edit" data-id="${t.id}" title="編集">✏️</button>
+    <button class="icon-btn delete btn-delete" data-id="${t.id}" title="削除">🗑️</button>
+  </div>
+</div>`;
+}
+
+function attachEvents() {
+  document.querySelectorAll('[id^="cb-"]').forEach(cb => {
+    cb.addEventListener("change", () => {
+      const t = todos.find(x => x.id === +cb.id.replace("cb-",""));
+      if (t) { t.completed = cb.checked; save(); render(); }
+    });
+  });
+  document.querySelectorAll(".btn-delete").forEach(btn => {
+    btn.addEventListener("click", () => {
+      todos = todos.filter(x => x.id !== +btn.dataset.id);
+      save(); toast("削除しました","success"); render();
+    });
+  });
+  document.querySelectorAll(".btn-edit").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const f = document.getElementById("edit-"+btn.dataset.id);
+      if (f) f.classList.toggle("visible");
+    });
+  });
+  document.querySelectorAll(".btn-cancel").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.getElementById("edit-"+btn.dataset.id)?.classList.remove("visible");
+    });
+  });
+  document.querySelectorAll(".btn-save").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = +btn.dataset.id;
+      const f = document.getElementById("edit-"+id);
+      const title = f.querySelector(".edit-title").value.trim();
+      if (!title) { toast("タイトルを入力してください","error"); return; }
+      const t = todos.find(x => x.id === id);
+      if (t) {
+        t.title = title;
+        t.description = f.querySelector(".edit-desc").value.trim();
+        t.priority = f.querySelector(".edit-priority").value;
+        t.due_date = f.querySelector(".edit-due").value;
+        save(); toast("更新しました","success"); render();
+      }
+    });
+  });
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function toast(msg, type) {
+  const c = document.getElementById("toast-container");
+  const el = document.createElement("div");
+  el.className = "toast " + type;
+  el.textContent = msg;
+  c.appendChild(el);
+  setTimeout(() => el.remove(), 2800);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  render();
+
+  document.getElementById("btn-add").addEventListener("click", () => {
+    const title = document.getElementById("new-title").value.trim();
+    if (!title) { toast("タイトルを入力してください","error"); return; }
+    todos.push({
+      id: nextId(),
+      title,
+      description: document.getElementById("new-desc").value.trim(),
+      priority: document.getElementById("new-priority").value,
+      due_date: document.getElementById("new-due").value,
+      completed: false,
+      created_at: new Date().toISOString(),
+    });
+    save();
+    document.getElementById("new-title").value = "";
+    document.getElementById("new-desc").value = "";
+    document.getElementById("new-priority").value = "medium";
+    document.getElementById("new-due").value = "";
+    toast("タスクを追加しました","success");
+    render();
+  });
+
+  document.getElementById("new-title").addEventListener("keydown", e => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); document.getElementById("btn-add").click(); }
+  });
+
+  document.querySelectorAll(".chip-status").forEach(c => {
+    c.addEventListener("click", () => {
+      state.status = c.dataset.v;
+      document.querySelectorAll(".chip-status").forEach(x => x.classList.toggle("active", x.dataset.v === c.dataset.v));
+      render();
+    });
+  });
+
+  document.querySelectorAll(".chip-priority").forEach(c => {
+    c.addEventListener("click", () => {
+      state.priority = c.dataset.v;
+      document.querySelectorAll(".chip-priority").forEach(x => x.classList.toggle("active", x.dataset.v === c.dataset.v));
+      render();
+    });
+  });
+
+  let timer;
+  document.getElementById("search").addEventListener("input", e => {
+    clearTimeout(timer);
+    timer = setTimeout(() => { state.search = e.target.value; render(); }, 250);
+  });
+
+  document.getElementById("btn-clear-completed").addEventListener("click", () => {
+    todos = todos.filter(t => !t.completed);
+    save(); toast("完了済みを削除しました","success"); render();
+  });
+});
+</script>
+</body>
+</html>
