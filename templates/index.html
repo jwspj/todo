@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TODO アプリ</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Header -->
+  <header class="header">
+    <h1>✅ TODO アプリ</h1>
+    <p>タスクを整理して、毎日を効率よく</p>
+  </header>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card">
+      <div class="num" id="stat-total">0</div>
+      <div class="label">合計</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="stat-active">0</div>
+      <div class="label">未完了</div>
+    </div>
+    <div class="stat-card">
+      <div class="num" id="stat-done">0</div>
+      <div class="label">完了</div>
+    </div>
+  </div>
+
+  <!-- Add Form -->
+  <div class="form-card">
+    <div class="form-title">新しいタスク</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="new-title">タイトル <span style="color:var(--high)">*</span></label>
+        <input type="text" id="new-title" placeholder="何をしますか？">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="new-desc">詳細（任意）</label>
+        <textarea id="new-desc" placeholder="メモや詳細を入力..."></textarea>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label for="new-priority">優先度</label>
+        <select id="new-priority">
+          <option value="high">🔴 高</option>
+          <option value="medium" selected>🟡 中</option>
+          <option value="low">🟢 低</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="new-due">期限日（任意）</label>
+        <input type="date" id="new-due">
+      </div>
+      <div class="form-group" style="justify-content: flex-end; flex: 0; min-width: 100px;">
+        <label>&nbsp;</label>
+        <button class="btn btn-primary" id="btn-add">+ 追加</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="search-box">
+      <span class="icon">🔍</span>
+      <input type="text" id="search" placeholder="検索...">
+    </div>
+    <div class="filter-group">
+      <button class="chip chip-status active" data-v="all">すべて</button>
+      <button class="chip chip-status" data-v="active">未完了</button>
+      <button class="chip chip-status" data-v="completed">完了</button>
+    </div>
+    <div class="filter-group">
+      <button class="chip chip-priority active" data-v="all">全優先度</button>
+      <button class="chip chip-priority" data-v="high">高</button>
+      <button class="chip chip-priority" data-v="medium">中</button>
+      <button class="chip chip-priority" data-v="low">低</button>
+    </div>
+  </div>
+
+  <!-- List -->
+  <div class="list-header">
+    <span id="todo-count">0 件</span>
+  </div>
+  <div id="todo-list" class="todo-list"></div>
+
+  <!-- Bottom actions -->
+  <div class="bottom-actions">
+    <button class="btn btn-ghost" id="btn-clear-completed">完了済みを削除</button>
+  </div>
+
+</div>
+
+<!-- Toast -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="/static/js/app.js"></script>
+</body>
+</html>
